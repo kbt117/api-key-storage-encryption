@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  backup_rules.xml (legacy Auto Backup, API 23-30)
+
+  Encrypted material must never be backed up. The Tink keyset is wrapped by an
+  Android Keystore master key that is NOT backed up, so restoring the keyset on
+  a new device would yield undecryptable data - and the same warning applies
+  verbatim to androidx EncryptedSharedPreferences.
+-->
+<full-backup-content>
+    <exclude domain="sharedpref" path="." />
+    <exclude domain="file" path="." />
+    <exclude domain="database" path="." />
+</full-backup-content>

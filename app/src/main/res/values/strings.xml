@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">KeyProxy</string>
+
+    <!-- Foreground-service notification -->
+    <string name="notif_channel_name">Proxy server</string>
+    <string name="notif_channel_description">Shown while the local API proxy is listening on the loopback interface.</string>
+    <string name="notif_title">Local API proxy running</string>
+    <string name="notif_text">Listening on %1$s</string>
+    <string name="notif_stop_action">Stop</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_title">Dashboard</string>
+    <string name="server_status">Server status</string>
+    <string name="local_endpoint">Local endpoint</string>
+    <string name="copy">Copy</string>
+    <string name="copied">Copied to clipboard</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="base_url_label">Base API URL</string>
+    <string name="api_key_label">API key</string>
+    <string name="port_label">Local port</string>
+    <string name="save">Save</string>
+
+    <!-- Logs -->
+    <string name="logs_title">Logs</string>
+    <string name="clear_logs">Clear</string>
+</resources>

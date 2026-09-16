@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  network_security_config.xml
+
+  Policy:
+    * base-config  -> cleartext PERMITTED=false. Every outbound call the proxy
+                      makes to an upstream API must be TLS.
+    * domain-config for the loopback hosts -> cleartext PERMITTED=true, because
+                      the embedded Ktor server is plain HTTP and lives on the
+                      device itself.
+
+  Note the allowlist is exactly 127.0.0.1 / localhost / ::1. It is NOT 0.0.0.0
+  and not a wildcard, so nothing else on the network can be reached in clear
+  text, and no LAN host is exposed.
+
+  Pinning is intentionally left out: pinning a third-party API's certificate
+  would break the "any OpenAI-compatible endpoint" use case and would brick the
+  app on routine upstream certificate rotation.
+-->
+<network-security-config>
+
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">localhost</domain>
+        <domain includeSubdomains="false">::1</domain>
+    </domain-config>
+
+</network-security-config>

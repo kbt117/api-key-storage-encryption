@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  AndroidManifest.xml
+
+  Permission budget is deliberately minimal:
+
+    INTERNET                      required to bind the loopback listener and to
+                                  reach the upstream OpenAI-compatible endpoint.
+    FOREGROUND_SERVICE            required by API 34+ to call startForeground().
+    FOREGROUND_SERVICE_SPECIAL_USE the type-specific permission for the
+                                  "specialUse" FGS type declared on the service.
+
+  Deliberately NOT requested:
+
+    POST_NOTIFICATIONS  a runtime ("dangerous") permission. The brief forbids
+                        dangerous permissions, so it is omitted. Consequence: on
+                        API 33+ the foreground-service notification is invisible
+                        until the user enables notifications for the app in
+                        Settings. The proxy itself keeps running - see the hint
+                        surfaced on the Dashboard.
+
+    NEARBY_WIFI_DEVICES  only needed once Android's Local Network Protection is
+                        enforced. LNP defines a "local network" as a
+                        broadcast-capable interface (10/8, 172.16/12,
+                        192.168/16, 169.254/16, 100.64/10) and explicitly
+                        excludes loopback. Because ProxyServer binds to
+                        127.0.0.1 only, this app never touches the LAN and does
+                        not need the permission. If you change ProxyServer.HOST
+                        to 0.0.0.0 you MUST add it.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
+
+    <application
+        android:name=".KeyProxyApplication"
+        android:allowBackup="false"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:enableOnBackInvokedCallback="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:networkSecurityConfig="@xml/network_security_config"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.KeyProxy"
+        tools:targetApi="36">
+
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden|uiMode"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.KeyProxy"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!--
+          The proxy runs in a foreground service so Android does not reclaim the
+          process (and the listening socket) while the UI is backgrounded.
+
+          foregroundServiceType="specialUse" is the correct type here: the work
+          is not dataSync (capped at 6 h/day from API 35), not mediaPlayback,
+          and not connectedDevice. API 34+ additionally requires the
+          PROPERTY_SPECIAL_USE_FGS_SUBTYPE justification below, which is also
+          what the Play Console surfaces during review.
+
+          exported="false": the service is only ever started from our own UI, so
+          no other app can start or stop the proxy.
+        -->
+        <service
+            android:name=".server.ProxyForegroundService"
+            android:exported="false"
+            android:foregroundServiceType="specialUse">
+            <property
+                android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
+                android:value="Hosts a user-initiated HTTP proxy bound to 127.0.0.1 only. The user explicitly toggles it on and it must survive the UI being backgrounded so local clients on the device can reach it." />
+        </service>
+    </application>
+
+</manifest>
